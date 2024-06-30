@@ -105,7 +105,7 @@ local function get_active_track(track_type)
     local track_list = mp.get_property_native('track-list')
     for num, track in ipairs(track_list) do
         if track.type == track_type and track.selected == true then
-            if track.external then
+            if track.external and not h.file_exists(track['external-filename']) then
                 track['external-filename'] = url_decode(track['external-filename'])
             end
             if not (track_type == 'sub' and track.id == mp.get_property_native('secondary-sid')) then
@@ -166,7 +166,7 @@ local function extract_to_file(subtitle_track)
         "-f", ext,
         temp_sub_fp
     }
-    if ret == nil or ret.status ~= 0 then
+    if ret == nil or ret.status ~= 0 or not h.file_exists(temp_sub_fp) then
         return notify("Couldn't extract internal subtitle.\nMake sure the video has internal subtitles.", "error", 7)
     end
     return temp_sub_fp
